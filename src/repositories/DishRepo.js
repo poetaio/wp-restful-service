@@ -8,6 +8,42 @@ class DishRepo extends CrudRepo {
         super("Dishes");
     }
 
+    async getAll(filters, limit, offset) {
+        const values = [];
+        let sqlSt = `SELECT * FROM ${this.tableName}`;
+        const whereStArr = [];
+
+        // if Dishes columns filters are set
+        if (filters.length) {
+            for (const {field, compare, value} of filters) {
+                whereStArr.push(`${field} ${compare} ?`);
+                values.push(value);
+            }
+        }
+
+        // if filters for ingredientId is set
+        if (filters.relationsFilters.ingredientsId) {
+            whereStArr.push(`EXISTS (SELECT * FROM IngredientInDish WHERE IngredientInDish.DishId = Dishes.DishId AND IngredientId = ?)`);
+            values.push(filters.relationsFilters.ingredientsId);
+        }
+        // if filters for cuisineId is set
+        if (filters.relationsFilters.cuisineid) {
+            whereStArr.push(` EXISTS (SELECT * FROM DishCuisine WHERE DishCuisine.DishId = Dishes.DishId AND CuisineId = ?)`);
+            values.push(filters.relationsFilters.cuisineid);
+        }
+
+        if (whereStArr.length) {
+            sqlSt += ` WHERE ${whereStArr.join('AND')}`;
+        }
+
+        values.push(Number.parseInt(limit), offset);
+        sqlSt += " LIMIT ? OFFSET ?";
+
+        const [rows] = await connection.query(sqlSt, values);
+
+        return rows;
+    }
+
     async create(dishName, price) {
         const [dishRes] = await connection.execute("INSERT INTO Dishes Values(NULL, ?, ?)", [dishName, price]);
 

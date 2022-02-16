@@ -3,8 +3,6 @@ const cors = require('cors');
 
 require('dotenv').config();
 
-const {createTables, createTables1} = require("./db");
-
 const router = require('./routes/index');
 
 const PORT = process.env.PORT || 5000;

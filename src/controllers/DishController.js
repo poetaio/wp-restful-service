@@ -8,10 +8,11 @@ const ValidationException = require("../errors/ValidationException");
 
 class DishController extends Controller {
     async getAll(req, res, next) {
-        let {name} = req.query;
+        let {name, ingredientId, cuisineId} = req.query;
         name = name ?? '';
 
         const filters = [];
+        filters.relationsFilters = {};
 
         if (name) {
             filters.push({
@@ -20,7 +21,12 @@ class DishController extends Controller {
                 value: `%${name.toLowerCase()}%`
             });
         }
-
+        if (ingredientId) {
+            filters.relationsFilters.ingredientsId = ingredientId;
+        }
+        if (cuisineId) {
+            filters.relationsFilters.cuisineid = cuisineId;
+        }
         return await super.getAll(req, res, next,  filters, dishRepo.getAll);
     }
 

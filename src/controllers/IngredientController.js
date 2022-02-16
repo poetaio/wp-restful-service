@@ -1,9 +1,6 @@
 const ApiError = require('../errors/ApiError');
 const Controller = require('./Controller');
-const {connection} = require("../db");
 const ingredientRepo = require("../repositories/IngredientRepo");
-const dishRepo = require("../repositories/DishRepo");
-const cuisineRepo = require("../repositories/CuisineRepo");
 
 class IngredientController extends Controller {
     async getAll(req, res, next) {

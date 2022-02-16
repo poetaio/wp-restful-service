@@ -3,7 +3,6 @@ const {connection, connectionCallback} = require('../db');
 const dishRepo = require('../repositories/DishRepo');
 const ingredientRepo = require('../repositories/IngredientRepo');
 const cuisineRepo = require('../repositories/CuisineRepo');
-const orderRepo = require('../repositories/OrderRepo');
 
 const createTableDishes = `CREATE TABLE IF NOT EXISTS Dishes(
   DishId int primary key auto_increment,
@@ -19,12 +18,6 @@ const createTableIngredients = `CREATE TABLE IF NOT EXISTS Ingredients(
 const createTableCuisines = `CREATE TABLE IF NOT EXISTS Cuisines(
   CuisineId int primary key auto_increment,
   CuisineName varchar(255) not null unique 
-);`;
-
-const createTableOrders = `CREATE TABLE IF NOT EXISTS Orders(
-  OrderId int primary key auto_increment,
-  OrderDate date not null,
-  ClientComment varchar(255) not null
 );`;
 
 const createTableDishCuisine = `CREATE TABLE IF NOT EXISTS DishCuisine(
@@ -45,15 +38,6 @@ const createTableIngredientInDish = `CREATE TABLE IF NOT EXISTS IngredientInDish
   Units varchar(20) not null
 );`
 
-const createTableDishInOrder = `CREATE TABLE IF NOT EXISTS DishInOrder(
-  DishId int not null,
-  OrderId int not null,
-  FOREIGN KEY (DishId) REFERENCES Dishes(DishId),
-  FOREIGN KEY (OrderId) REFERENCES Cuisines(CuisineId),
-  NumberOfDishes int not null,
-  PRIMARY KEY (DishId, OrderId)
-);`
-
 const dropTableSt = (tableName) => `DROP TABLE IF EXISTS ${tableName}`;
 
 class SystemController {
@@ -61,13 +45,10 @@ class SystemController {
         try {
             await connection.query(dropTableSt("DishCuisine"));
             await connection.query(dropTableSt("IngredientInDish"));
-            await connection.query(dropTableSt("DishInOrder"));
 
             await connection.query(dropTableSt("Dishes"));
             await connection.query(dropTableSt("Ingredients"));
             await connection.query(dropTableSt("Cuisines"));
-            await connection.query(dropTableSt("Orders"));
-            await connection.query(dropTableSt("Users"));
 
             return res.status(200).end();
         } catch (e) {
@@ -80,12 +61,9 @@ class SystemController {
             await connection.query(createTableDishes);
             await connection.query(createTableIngredients);
             await connection.query(createTableCuisines);
-            await connection.query(createTableUsers);
-            await connection.query(createTableOrders);
 
             await connection.query(createTableDishCuisine);
             await connection.query(createTableIngredientInDish);
-            await connection.query(createTableDishInOrder);
 
             return res.status(200).end();
         } catch (e) {
@@ -98,7 +76,6 @@ class SystemController {
             await ingredientRepo.fillDB();
             await cuisineRepo.fillDB();
             await dishRepo.fillDB();
-            await orderRepo.fillDB();
 
             return res.status(200).end();
         } catch (e) {
